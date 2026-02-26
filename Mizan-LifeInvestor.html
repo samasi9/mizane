@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d3d2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Mīzān: The Life Investor</title>
+  <style>
+    :root {
+      --green-dark: #0d3d2e;
+      --green-mid: #1a5c45;
+      --green-light: #2d7a5e;
+      --gold: #c9a227;
+      --gold-light: #e8d48b;
+      --cream: #f5f0e6;
+      --cream-dark: #e8e0d0;
+      --red-haram: #a52a2a;
+      --white: #fff;
+      --shadow: rgba(13, 61, 46, 0.2);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 50%, #0d3d2e 100%);
+      color: var(--cream);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .screen { display: none; min-height: 100vh; min-height: 100dvh; padding: 1rem; padding-bottom: calc(2rem + env(safe-area-inset-bottom)); }
+    .screen:not(#intro-screen) { text-align: center; }
+    .screen.active { display: block; }
+
+    /* Intro */
+    #intro-screen { display: flex; text-align: center; justify-content: center; align-items: center; flex-direction: column; padding: 2rem; }
+    #intro-screen h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); color: var(--gold-light); margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+    #intro-screen .sub { font-size: clamp(0.9rem, 2.5vw, 1.1rem); opacity: 0.9; margin-bottom: 2rem; }
+    #intro-verse {
+      max-width: 28rem; margin: 1.5rem auto; padding: 1.25rem; background: rgba(0,0,0,0.2);
+      border-left: 4px solid var(--gold); border-radius: 0 8px 8px 0;
+      font-style: italic; line-height: 1.6; direction: rtl; text-align: right;
+    }
+    #intro-verse .en { direction: ltr; text-align: center; margin-top: 0.75rem; font-size: 0.9rem; opacity: 0.95; }
+    .skip-intro { margin-top: 2rem; padding: 0.75rem 1.5rem; min-height: 48px; background: transparent; border: 1px solid var(--gold); color: var(--gold-light); border-radius: 8px; cursor: pointer; font-size: 1rem; touch-action: manipulation; }
+    .skip-intro:hover { background: rgba(201,162,39,0.2); }
+    .skip-intro:active { background: rgba(201,162,39,0.3); }
+
+    /* Character / setup steps */
+    #char-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 100vh; min-height: 100dvh; }
+    .char-step { display: none; width: 100%; max-width: 28rem; }
+    .char-step.active { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .char-step h1 { text-align: center; width: 100%; }
+    .char-step p { text-align: center; }
+    .char-step .step-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    #input-name { display: block; margin-left: auto; margin-right: auto; }
+    #start-game { pointer-events: auto; cursor: pointer; position: relative; z-index: 1; }
+    .char-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem auto; width: 100%; }
+    .char-card {
+      background: rgba(255,255,255,0.08); border: 2px solid transparent; border-radius: 12px; padding: 1rem;
+      cursor: pointer; transition: all 0.2s; text-align: center; min-height: 48px; display: flex; align-items: center; justify-content: center;
+      touch-action: manipulation; -webkit-user-select: none; user-select: none;
+    }
+    .char-card:hover, .char-card.selected { border-color: var(--gold); background: rgba(201,162,39,0.15); }
+    .char-card:active { background: rgba(201,162,39,0.2); }
+    .char-card .name { font-weight: bold; color: var(--gold-light); }
+    .char-card .role { font-size: 0.8rem; opacity: 0.85; }
+    .custom-name { margin-top: 1rem; }
+    .custom-name input { width: 100%; max-width: 16rem; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--green-light); background: var(--cream); color: var(--green-dark); }
+
+    /* Game screen */
+    #game-screen { display: flex; flex-direction: column; align-items: center; }
+    #game-screen .game-header,
+    #game-screen .progress-wrap,
+    #game-screen .stats-bar,
+    #game-screen #phase-content,
+    #game-screen .event-banner { width: 100%; max-width: 28rem; }
+    #phase-content { margin: 0 auto; }
+
+    /* Progress */
+    .game-header { margin-bottom: 0.75rem; text-align: center; }
+    .game-identity { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.35rem; margin-bottom: 0.5rem; font-size: 0.95rem; }
+    .game-identity .sep { opacity: 0.6; }
+    .game-identity .age-badge { margin: 0; }
+    .progress-wrap { margin: 1rem 0; text-align: center; }
+    .progress-bar { height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green-light), var(--gold)); width: 0%; transition: width 0.4s; }
+    .progress-labels { display: flex; justify-content: space-between; margin-top: 0.25rem; font-size: 0.8rem; opacity: 0.9; }
+    .age-badge { display: inline-block; background: var(--gold); color: var(--green-dark); padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: bold; margin-bottom: 0.5rem; }
+
+    /* Phase card */
+    .phase-card {
+      background: rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; margin: 1rem 0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .phase-card h2 { font-size: 1.1rem; color: var(--gold-light); margin-bottom: 0.5rem; }
+    .phase-card p { font-size: 0.95rem; line-height: 1.5; opacity: 0.95; margin-bottom: 1rem; }
+
+    /* Sliders */
+    .slider-group { margin: 1rem 0; }
+    .slider-group label { display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 0.35rem; }
+    .slider-group input[type="range"] { width: 100%; height: 32px; accent-color: var(--gold); touch-action: none; }
+    .slider-total { text-align: right; font-size: 0.85rem; margin-top: 0.5rem; }
+    .slider-total.warn { color: #e8a87c; }
+    .slider-total.ok { color: #7fc97f; }
+
+    /* Allocation steppers (replacing sliders) */
+    .allocation-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0.75rem 0; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .allocation-row .label { font-weight: 500; min-width: 5rem; }
+    .allocation-row .stepper { display: flex; align-items: center; gap: 0.25rem; }
+    .allocation-row .stepper button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.1); color: var(--cream); font-size: 1.2rem; cursor: pointer; line-height: 1; touch-action: manipulation; }
+    .allocation-row .stepper button:hover { background: rgba(255,255,255,0.2); }
+    .allocation-row .values { text-align: right; font-variant-numeric: tabular-nums; min-width: 7rem; }
+    .allocation-row .values .pct { color: var(--gold-light); font-weight: 600; }
+    .allocation-row .values .dollars { font-size: 0.85rem; opacity: 0.9; }
+
+    /* Buttons */
+    .btn { display: inline-block; padding: 0.75rem 1.25rem; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; transition: all 0.2s; margin: 0.25rem; min-height: 48px; min-width: 48px; touch-action: manipulation; }
+    .btn-primary { background: var(--gold); color: var(--green-dark); font-weight: bold; }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-secondary { background: rgba(255,255,255,0.15); color: var(--cream); border: 1px solid rgba(255,255,255,0.3); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+    .btn-secondary:active { background: rgba(255,255,255,0.2); }
+    .btn-haram { border: 2px solid var(--red-haram); color: #f0a0a0; background: rgba(165,42,42,0.2); }
+    .btn-haram:hover { background: rgba(165,42,42,0.35); }
+    .btn-haram::before { content: "⚠ "; }
+    .choices { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+
+    /* Stats bar */
+    .stats-bar { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem; }
+    .stats-bar span { display: flex; align-items: center; gap: 0.35rem; }
+    .stats-bar .money { color: var(--gold-light); }
+    .stats-bar .barakah { color: #7fc97f; }
+
+    /* Modal / Education */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--green-mid); border-radius: 12px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.25rem; border: 1px solid var(--gold); }
+    .modal h3 { color: var(--gold-light); margin-bottom: 0.5rem; font-size: 1rem; }
+    .modal .verse { direction: rtl; text-align: right; font-style: italic; padding: 0.5rem 0; border-left: 3px solid var(--gold); padding-left: 0.75rem; margin: 0.5rem 0; }
+    .modal .close-btn { margin-top: 1rem; width: 100%; padding: 0.75rem 1rem; min-height: 48px; background: var(--gold); color: var(--green-dark); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; touch-action: manipulation; }
+
+    /* Random event */
+    .event-banner { background: rgba(201,162,39,0.25); border: 1px solid var(--gold); border-radius: 8px; padding: 0.75rem 1rem; margin: 0.5rem 0 0.75rem; text-align: center; font-size: 0.95rem; }
+
+    /* Final dashboard */
+    #final-screen { text-align: center; }
+    #final-screen h1 { color: var(--gold-light); margin-bottom: 1rem; }
+    .score-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .score-card { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem; }
+    .score-card .label { font-size: 0.8rem; opacity: 0.9; }
+    .score-card .value { font-size: 1.75rem; font-weight: bold; color: var(--gold-light); }
+    .verdict { font-size: 1.1rem; margin: 1.5rem 0; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); }
+    .radar-wrap { margin: 1.5rem auto; max-width: 280px; }
+    #radarCanvas { width: 100%; height: auto; display: block; border-radius: 8px; background: rgba(0,0,0,0.15); }
+    .final-actions { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+
+    /* Save/Load */
+    .save-load { position: fixed; top: max(0.5rem, env(safe-area-inset-top)); right: max(0.5rem, env(safe-area-inset-right)); display: flex; gap: 0.5rem; z-index: 50; }
+    .save-load .btn { padding: 0.5rem 0.75rem; font-size: 0.85rem; min-height: 44px; }
+
+    /* Mobile-first: enjoyable on phone */
+    @media (max-width: 600px), (hover: none) {
+      .screen { padding: 1rem; padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+      #intro-screen { padding: 1.5rem 1rem; }
+      #intro-screen h1 { font-size: 1.75rem; }
+      .skip-intro { width: 100%; max-width: 20rem; min-height: 52px; font-size: 1.05rem; }
+      .char-step h1 { font-size: 1.35rem; line-height: 1.3; }
+      .char-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1.25rem 0; }
+      .char-card { padding: 1.25rem 0.75rem; min-height: 56px; font-size: 1rem; }
+      .char-card .name { font-size: 1rem; }
+      #input-name { font-size: 16px !important; min-height: 48px; padding: 0.75rem !important; }
+      .char-step .btn { width: 100%; max-width: 100%; margin: 0.5rem 0; min-height: 52px; font-size: 1.05rem; }
+      .char-step .btn + .btn { margin-left: 0 !important; }
+      .step-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+      .step-actions .btn { flex: 1; }
+      .progress-wrap { margin: 0.75rem 0; }
+      .progress-bar { height: 10px; }
+      .age-badge { padding: 0.35rem 0.9rem; font-size: 0.95rem; }
+      .stats-bar { gap: 0.75rem; padding: 0.85rem; font-size: 0.9rem; flex-wrap: wrap; }
+      .stats-bar span { min-height: 28px; }
+      .phase-card { padding: 1.25rem; margin: 0.75rem 0; border-radius: 14px; }
+      .phase-card h2 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+      .phase-card p { font-size: 1rem; line-height: 1.55; }
+      .slider-group { margin: 1.1rem 0; }
+      .slider-group input[type="range"] { height: 36px; }
+      .choices { flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+      .choices .btn { width: 100%; min-height: 52px; font-size: 1rem; padding: 0.85rem 1rem; }
+      .modal { max-height: 90vh; padding: 1.25rem; -webkit-overflow-scrolling: touch; border-radius: 14px; }
+      .modal .close-btn { min-height: 52px; font-size: 1.05rem; }
+      .score-cards { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+      .score-card { padding: 1rem 0.75rem; }
+      .score-card .value { font-size: 1.5rem; }
+      .final-actions { flex-direction: column; gap: 0.6rem; margin-top: 1.5rem; }
+      .final-actions .btn { width: 100%; max-width: 20rem; margin-left: auto; margin-right: auto; min-height: 52px; font-size: 1.05rem; }
+      .verdict { font-size: 1rem; padding: 1rem; line-height: 1.5; }
+      .radar-wrap { margin: 1rem auto; max-width: 260px; }
+    }
+    @media (max-width: 380px) {
+      .char-grid { grid-template-columns: 1fr; }
+      .stats-bar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div id="intro-screen" class="screen active">
+    <h1>Mīzān</h1>
+    <p class="sub">The Life Investor</p>
+    <p id="intro-text" style="opacity:0; transition: opacity 0.8s; pointer-events: none;">Every choice teaches a real lesson.</p>
+    <div id="intro-verse" style="opacity:0; transition: opacity 1s; pointer-events: none;">
+      <p class="ar">وَٱلْأَرْضَ وَضَعَهَا لِلْأَنَامِ</p>
+      <p class="en">"And the earth He has laid out for all living beings." — Quran 55:10 (Ar-Rahman)</p>
+      <p class="en" style="margin-top:0.5rem;">Rizq (sustenance) is from Allah; we are stewards of wealth.</p>
+    </div>
+    <button class="skip-intro" id="skip-intro">Skip intro</button>
+  </div>
+
+  <div id="char-screen" class="screen">
+    <!-- Step 1: Name -->
+    <div id="char-step-1" class="char-step active">
+      <h1 style="color:var(--gold-light); margin-bottom:0.5rem;">What is your name?</h1>
+      <input type="text" id="input-name" placeholder="Your name" maxlength="24" style="width:100%; max-width:20rem; padding:0.6rem; margin:1rem 0; border-radius:8px; border:1px solid var(--green-light); background:var(--cream); color:var(--green-dark); font-size:1rem;" />
+      <button class="btn btn-primary" id="char-next-1">Next</button>
+    </div>
+    <!-- Step 2: Sex -->
+    <div id="char-step-2" class="char-step">
+      <h1 style="color:var(--gold-light); margin-bottom:0.5rem;">Choose your sex</h1>
+      <div class="char-grid" id="sex-grid"></div>
+      <div class="step-actions" style="margin-top:1rem;">
+        <button class="btn btn-secondary" id="char-back-2">Back</button>
+        <button class="btn btn-primary" id="char-next-2" style="margin-left:0.5rem;">Next</button>
+      </div>
+    </div>
+    <!-- Step 3: Occupation -->
+    <div id="char-step-3" class="char-step">
+      <h1 style="color:var(--gold-light); margin-bottom:0.5rem;">Choose your occupation</h1>
+      <div class="char-grid" id="occupation-grid"></div>
+      <div class="step-actions" style="margin-top:1rem;">
+        <button class="btn btn-secondary" id="char-back-3">Back</button>
+        <button class="btn btn-primary" id="char-next-3" style="margin-left:0.5rem;">Next</button>
+      </div>
+    </div>
+    <!-- Step 4: Summary + Begin life -->
+    <div id="char-step-4" class="char-step">
+      <h1 style="color:var(--gold-light); margin-bottom:0.5rem;">Choose your path</h1>
+      <p id="char-summary" style="opacity:0.9; margin-bottom:1.5rem;"></p>
+      <button class="btn btn-primary" id="start-game">Begin life</button>
+    </div>
+  </div>
+
+  <div id="game-screen" class="screen">
+    <div class="save-load">
+      <button class="btn btn-secondary" id="save-btn">Save</button>
+      <button class="btn btn-secondary" id="load-btn">Load</button>
+    </div>
+    <div class="game-header">
+      <div class="game-identity">
+        <span id="game-player-name">—</span>
+        <span class="sep">·</span>
+        <span id="game-player-occupation">—</span>
+        <span class="sep">·</span>
+        <span class="age-badge">Age <span id="current-age">22</span></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-labels"><span>22</span><span>60</span></div>
+    </div>
+    <div class="stats-bar">
+      <span class="money">💰 Patrimony: <span id="stat-wealth">$0</span></span>
+      <span class="barakah">✨ Barakah: <span id="stat-barakah">1.00</span>x</span>
+      <span>👥 Well-being: <span id="stat-social">50</span></span>
+      <span>🕌 Spiritual: <span id="stat-spiritual">50</span></span>
+    </div>
+    <div id="event-banner" class="event-banner" style="display:none;"></div>
+    <div id="phase-content"></div>
+  </div>
+
+  <div id="final-screen" class="screen">
+    <h1>Your Life at 60</h1>
+    <p style="opacity:0.9;"><span id="final-name"></span>, here is your balance sheet.</p>
+    <div class="score-cards">
+      <div class="score-card"><div class="label">Financial</div><div class="value" id="final-financial">0</div></div>
+      <div class="score-card"><div class="label">Well-being</div><div class="value" id="final-social">0</div></div>
+      <div class="score-card"><div class="label">Spiritual</div><div class="value" id="final-spiritual">0</div></div>
+    </div>
+    <div class="verdict" id="verdict"></div>
+    <div class="radar-wrap"><canvas id="radarCanvas" width="280" height="280"></canvas></div>
+    <div class="final-actions">
+      <button class="btn btn-primary" id="replay-btn">Play again</button>
+      <button class="btn btn-secondary" id="share-btn">Share results</button>
+    </div>
+  </div>
+
+  <div id="edu-modal" class="modal-overlay">
+    <div class="modal">
+      <h3 id="edu-title">Learn</h3>
+      <p id="edu-body"></p>
+      <div id="edu-verse" class="verse"></div>
+      <button class="close-btn" id="edu-close">Continue</button>
+    </div>
+  </div>
+
+  <script>
+(function() {
+  'use strict';
+
+  const OCCUPATIONS = [
+    { id: 'entrepreneur', label: 'Entrepreneur', careerGrowth: 1, businessVariance: 1.3 },
+    { id: 'engineer', label: 'Engineer', careerGrowth: 1.15, businessVariance: 1 },
+    { id: 'teacher', label: 'Teacher', careerGrowth: 1, socialBonus: 1.1, spiritualBonus: 1.05 },
+    { id: 'housewife', label: 'Housewife', careerGrowth: 1, femaleOnly: true }
+  ];
+
+  const PHASES = [
+    { age: 22, id: 'allocation', title: 'First salary allocation', desc: 'You receive your first salary. How will you split it?', type: 'sliders', keys: ['save','invest','spend','charity'] },
+    { age: 23, id: 'first_invest', title: 'First investment', desc: 'Choose where to put your savings.', type: 'invest', options: [
+      { id: 'halal', label: 'Halal (sukuk, gold, halal REITs)', haram: false },
+      { id: 'riba', label: 'Conventional stocks/bonds (riba)', haram: true }
+    ]},
+    { age: 25, id: 'promotion', title: 'Promotion — lifestyle inflation?', desc: 'You got a raise. Do you upgrade your lifestyle or save the difference?', type: 'choice', options: [
+      { id: 'resist', label: 'Save the difference' },
+      { id: 'inflate', label: 'Upgrade car & lifestyle', haram: true }
+    ]},
+    { age: 27, id: 'marriage', title: 'Marriage', desc: 'How will you celebrate your nikah?', type: 'choice', options: [
+      { id: 'simple', label: 'Simple nikah (modest, blessed)' },
+      { id: 'lavish', label: 'Lavish wedding (debt)', haram: true }
+    ]},
+    { age: 29, id: 'expat', title: 'Expat job offer', desc: 'High pay abroad, but family strain.', type: 'choice', options: [
+      { id: 'accept', label: 'Accept (higher income)' },
+      { id: 'decline', label: 'Decline (stay with family)' }
+    ]},
+    { age: 32, id: 'realestate', title: 'Real estate', desc: 'Buy a home: halal or conventional?', type: 'choice', options: [
+      { id: 'halal', label: 'Halal (murabaha / ijara / musharakah)' },
+      { id: 'riba', label: 'Riba mortgage', haram: true }
+    ]},
+    { age: 35, id: 'health', title: 'Health crisis', desc: 'A medical emergency. Your emergency fund and takaful are tested.', type: 'health' },
+    { age: 38, id: 'entrepreneur', title: 'Entrepreneurship', desc: 'Start a business (risk + tawakkul) or stay employed?', type: 'choice', options: [
+      { id: 'start', label: 'Start business' },
+      { id: 'stay', label: 'Stay employed' }
+    ]},
+    { age: 42, id: 'marriage_crisis', title: 'Marriage crisis', desc: 'Invest in family or neglect?', type: 'choice', options: [
+      { id: 'invest', label: 'Counseling & time with family' },
+      { id: 'neglect', label: 'Focus on work only' }
+    ]},
+    { age: 48, id: 'sadaqah', title: 'Sadaqah Jariyah', desc: 'Perpetual charity: endowment, well, or school.', type: 'sadaqah' },
+    { age: 60, id: 'legacy', title: 'Legacy — Wasiyah', desc: 'Islamic will (faraidh). Allocate your estate and reflect.', type: 'legacy' }
+  ];
+
+  const EDUCATION = {
+    allocation: { title: 'Balance your rizq', body: 'Saving builds security; investing grows wealth; charity (sadaqah) brings barakah—blessing that multiplies good. Start with what you can; consistency matters more than amount.', verse: '"And spend from what We have made you successors of." — Quran 57:7' },
+    riba: { title: 'Why avoid riba?', body: 'Riba (interest) erodes barakah. Wealth may grow in number but not in blessing, and can lead to instability. Quran forbids it.', verse: '"... Allah has permitted trade and forbidden riba." — Quran 2:275' },
+    israf: { title: 'Avoid israf (waste)', body: 'Lavish spending and debt for show contradict moderation. A simple nikah is blessed; debt for a party burdens the soul and the wallet.', verse: '"Eat and drink but waste not by excess." — Quran 7:31' },
+    halal_invest: { title: 'Halal investing', body: 'Sukuk (Islamic bonds), gold, and halal REITs avoid interest and forbidden industries. Returns may be steady and blessed.', verse: '"And give not unto the foolish your wealth." — Quran 4:5' },
+    realestate_halal: { title: 'Halal real estate', body: 'Murabaha (cost-plus), ijara (lease-to-own), and musharakah (partnership) avoid interest. Many who took riba mortgages lost homes in 2008.', verse: '"And do not consume one another\'s wealth unjustly." — Quran 2:188' },
+    sadaqah_jariyah: { title: 'Sadaqah Jariyah', body: 'Perpetual charity (well, school, endowment) keeps giving reward even after you die. It increases barakah and spiritual score over time.', verse: '"When a person dies, their deeds end except three: ongoing charity, knowledge benefited from, or a righteous child." — Hadith' }
+  };
+
+  const RANDOM_EVENTS = [
+    { id: 'job_loss', label: 'Job loss', prob: 0.12, effect: (s) => { s.wealth = Math.max(0, s.wealth - 15000); s.social -= 5; } },
+    { id: 'market_crash', label: 'Market crash', prob: 0.1, effect: (s) => { const hit = s.barakah < 1 ? 0.15 : 0.08; s.wealth *= (1 - hit); } },
+    { id: 'inheritance', label: 'Inheritance', prob: 0.08, effect: (s) => { s.wealth += 20000; s.spiritual += 2; } },
+    { id: 'haram_offer', label: 'Haram opportunity (high return)', prob: 0.1, effect: (s) => { s.wealth += 8000; s.spiritual -= 10; s.barakah = Math.max(0.7, s.barakah - 0.1); } },
+    { id: 'community_need', label: 'Community need', prob: 0.15, effect: (s) => { s.wealth -= 2000; s.social += 8; s.spiritual += 6; s.barakah = Math.min(1.25, s.barakah + 0.03); } }
+  ];
+
+  let state = {
+    phaseIndex: 0,
+    age: 22,
+    wealth: 0,
+    monthlyIncome: 3000,
+    barakah: 1.0,
+    social: 50,
+    spiritual: 50,
+    name: '',
+    sex: '',
+    occupation: '',
+    character: { name: 'Traveler', id: 'custom' },
+    choices: {},
+    events: [],
+    allocation: { save: 20, invest: 10, spend: 60, charity: 10 },
+    emergencyFund: 0,
+    married: false,
+    divorced: false,
+    sadaqahDone: false
+  };
+
+  const SALARY_GROWTH = 1.04;
+  const HALAL_RETURN = 0.06;
+  const RIBA_RETURN = 0.07;
+  const RIBA_VOLATILITY = 0.2;
+  const SAVINGS_RATE = 0.25; // effective savings from "save+invest" allocation
+
+  function simulateYears(years) {
+    if (years <= 0) return;
+    const investChoice = state.choices.first_invest || 'halal';
+    const returnRate = investChoice === 'riba'
+      ? RIBA_RETURN + (Math.random() - 0.5) * RIBA_VOLATILITY
+      : HALAL_RETURN * state.barakah;
+    for (let y = 0; y < years; y++) {
+      state.monthlyIncome *= SALARY_GROWTH;
+      const annualIncome = state.monthlyIncome * 12;
+      const savings = annualIncome * SAVINGS_RATE;
+      state.wealth += savings;
+      state.wealth *= (1 + returnRate);
+      state.emergencyFund += annualIncome * 0.05;
+    }
+  }
+
+  function getPhase() { return PHASES[state.phaseIndex]; }
+  function emitSound(type) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.connect(g); g.connect(ctx.destination);
+      g.gain.setValueAtTime(0.08, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      if (type === 'success') osc.frequency.setValueAtTime(523, ctx.currentTime);
+      else if (type === 'warn') osc.frequency.setValueAtTime(200, ctx.currentTime);
+      else osc.frequency.setValueAtTime(350, ctx.currentTime);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
+    } catch (_) {}
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showEducation(key) {
+    const e = EDUCATION[key];
+    if (!e) return;
+    document.getElementById('edu-title').textContent = e.title;
+    document.getElementById('edu-body').textContent = e.body;
+    document.getElementById('edu-verse').innerHTML = e.verse ? `<p>${e.verse}</p>` : '';
+    document.getElementById('edu-modal').classList.add('active');
+  }
+  document.getElementById('edu-close').onclick = () => document.getElementById('edu-modal').classList.remove('active');
+
+  function advancePhase() {
+    const currentAge = state.age;
+    const nextPhase = PHASES[state.phaseIndex + 1];
+    if (nextPhase && nextPhase.age > currentAge) simulateYears(nextPhase.age - currentAge);
+    state.phaseIndex++;
+    maybeTriggerRandomEvent();
+    renderPhase();
+  }
+
+  function applyPhaseEffects(phaseId, choiceId) {
+    const ar = state.occupation === 'engineer' ? 1.15 : 1;
+    if (phaseId === 'allocation') {
+      const a = state.allocation;
+      state.emergencyFund += state.monthlyIncome * (a.save / 100) * 12;
+      const invReturn = HALAL_RETURN * state.barakah;
+      state.wealth += state.monthlyIncome * (a.invest / 100) * 12 * (1 + invReturn * 0.5);
+      state.spiritual = Math.min(100, state.spiritual + (a.charity / 8));
+      state.barakah = Math.min(1.25, state.barakah + (a.charity / 800));
+    }
+    if (phaseId === 'first_invest') {
+      if (choiceId === 'riba') { state.barakah = Math.max(0.85, state.barakah - 0.05); state.spiritual -= 5; }
+      else { state.barakah = Math.min(1.2, state.barakah + 0.03); state.spiritual += 3; }
+    }
+    if (phaseId === 'promotion') {
+      state.monthlyIncome *= 1.2 * ar;
+      if (choiceId === 'inflate') { state.wealth -= 8000; state.spiritual -= 5; state.barakah = Math.max(0.9, state.barakah - 0.02); }
+      else { state.wealth += 12000; state.spiritual += 2; }
+    }
+    if (phaseId === 'marriage') {
+      state.married = true;
+      if (choiceId === 'simple') { state.social += 15; state.spiritual += 10; state.barakah = Math.min(1.2, state.barakah + 0.05); }
+      else { state.wealth -= 25000; state.social += 5; state.spiritual -= 8; }
+    }
+    if (phaseId === 'expat') {
+      if (choiceId === 'accept') { state.monthlyIncome *= 1.4; state.social -= 12; }
+      else { state.monthlyIncome *= 1.05; state.social += 10; }
+    }
+    if (phaseId === 'realestate') {
+      if (choiceId === 'halal') { state.wealth += 18000 * state.barakah; state.spiritual += 8; }
+      else { state.wealth += 22000; state.spiritual -= 10; state.barakah = Math.max(0.8, state.barakah - 0.08); }
+    }
+    if (phaseId === 'health') {
+      const need = 12000;
+      if (state.emergencyFund >= need) { state.emergencyFund -= need; state.spiritual += 5; }
+      else { state.wealth -= (need - state.emergencyFund); state.social -= 5; }
+    }
+    if (phaseId === 'entrepreneur') {
+      if (choiceId === 'start') {
+        const roll = 0.7 + Math.random() * 0.6;
+        state.wealth *= roll; state.monthlyIncome *= 1.1 + roll * 0.3;
+        state.spiritual += 5;
+      }
+    }
+    if (phaseId === 'marriage_crisis') {
+      if (choiceId === 'neglect') {
+        if (Math.random() < 0.5) { state.divorced = true; state.wealth *= 0.5; state.social = Math.max(0, state.social - 25); }
+        else state.social -= 10;
+      } else { state.social += 15; state.spiritual += 5; }
+    }
+    if (phaseId === 'sadaqah') {
+      state.wealth -= 5000; state.spiritual += 15; state.barakah = Math.min(1.25, state.barakah + 0.1); state.sadaqahDone = true;
+    }
+    state.age = getPhase().age;
+    state.social = Math.max(0, Math.min(100, state.social));
+    state.spiritual = Math.max(0, Math.min(100, state.spiritual));
+  }
+
+  function maybeTriggerRandomEvent() {
+    if (state.phaseIndex <= 0 || state.phaseIndex >= PHASES.length - 1) return;
+    const ev = RANDOM_EVENTS.find(e => Math.random() < e.prob);
+    if (ev && !state.events.includes(ev.id)) { ev.effect(state); state.events.push(ev.id); showEventBanner(ev.label); }
+  }
+
+  function showEventBanner(label) {
+    const el = document.getElementById('event-banner');
+    el.textContent = '📌 Event: ' + label;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 10000);
+  }
+
+  function renderPhase() {
+    const phase = getPhase();
+    if (!phase) { renderFinal(); return; }
+
+    const occLabel = OCCUPATIONS.find(o => o.id === state.occupation)?.label || state.occupation || '—';
+    document.getElementById('game-player-name').textContent = state.character?.name || state.name || '—';
+    document.getElementById('game-player-occupation').textContent = occLabel;
+    document.getElementById('current-age').textContent = state.age;
+    document.getElementById('progress-fill').style.width = ((state.age - 22) / (60 - 22)) * 100 + '%';
+    document.getElementById('stat-wealth').textContent = '$' + Math.round(state.wealth).toLocaleString();
+    document.getElementById('stat-barakah').textContent = state.barakah.toFixed(2);
+    document.getElementById('stat-social').textContent = Math.round(state.social);
+    document.getElementById('stat-spiritual').textContent = Math.round(state.spiritual);
+
+    const container = document.getElementById('phase-content');
+    let html = `<div class="phase-card"><h2>Age ${phase.age}: ${phase.title}</h2><p>${phase.desc}</p>`;
+
+    if (phase.type === 'sliders') {
+      const a = state.allocation;
+      const monthly = state.monthlyIncome || 3000;
+      const STEP = 5;
+      const row = (key, label) => {
+        const pct = a[key];
+        const dollars = Math.round(monthly * pct / 100);
+        return `<div class="allocation-row" data-key="${key}">
+          <span class="label">${label}</span>
+          <div class="stepper">
+            <button type="button" aria-label="Decrease ${label}">−</button>
+            <span class="values"><span class="pct" id="val_${key}">${pct}%</span><br><span class="dollars">$${dollars.toLocaleString()}/mo</span></span>
+            <button type="button" aria-label="Increase ${label}">+</button>
+          </div>
+        </div>`;
+      };
+      const sum = a.save + a.invest + a.spend + a.charity;
+      html += row('save', 'Save') + row('invest', 'Invest') + row('spend', 'Spend') + row('charity', 'Charity');
+      html += `<div class="slider-total ${sum === 100 ? 'ok' : 'warn'}">Total: ${sum}% ($${Math.round(monthly * sum / 100).toLocaleString()}/mo)</div>`;
+      html += `<button class="btn btn-secondary" id="edu-alloc" style="margin-top:0.5rem;">Learn: Balance & barakah</button>`;
+      html += `<button class="btn btn-primary" id="phase-next" style="margin-top:0.5rem;">Continue</button>`;
+      container.innerHTML = html;
+      document.getElementById('edu-alloc').onclick = () => showEducation('allocation');
+      function allocationStepper(key, delta) {
+        const a = state.allocation;
+        const other = ['save','invest','spend','charity'].filter(k => k !== key);
+        const step = Math.abs(delta);
+        if (delta > 0) {
+          const takeFrom = other.reduce((best, k) => a[k] > (a[best] || 0) ? k : best, other[0]);
+          a[key] = Math.min(100, a[key] + step);
+          if (takeFrom) a[takeFrom] = Math.max(0, a[takeFrom] - step);
+        } else {
+          a[key] = Math.max(0, a[key] - step);
+          const giveTo = other.reduce((best, k) => a[k] > (a[best] || 0) ? k : best, other[0]);
+          if (giveTo) a[giveTo] = Math.min(100, (a[giveTo] || 0) + step);
+        }
+        refreshAllocationDisplay();
+      }
+      function refreshAllocationDisplay() {
+        const a = state.allocation;
+        const monthly = state.monthlyIncome || 3000;
+        const sum = a.save + a.invest + a.spend + a.charity;
+        ['save','invest','spend','charity'].forEach(k => {
+          const el = document.getElementById('val_' + k);
+          if (el) {
+            el.textContent = a[k] + '%';
+            const rowEl = el.closest('.allocation-row');
+            if (rowEl) {
+              const dollarsEl = rowEl.querySelector('.dollars');
+              if (dollarsEl) dollarsEl.textContent = '$' + Math.round(monthly * a[k] / 100).toLocaleString() + '/mo';
+            }
+          }
+        });
+        const totalEl = document.querySelector('.slider-total');
+        if (totalEl) { totalEl.textContent = 'Total: ' + sum + '% ($' + Math.round(monthly * sum / 100).toLocaleString() + '/mo)'; totalEl.className = 'slider-total ' + (sum === 100 ? 'ok' : 'warn'); }
+      }
+      container.querySelectorAll('.allocation-row').forEach(rowEl => {
+        const key = rowEl.dataset.key;
+        const [btnMinus, btnPlus] = rowEl.querySelectorAll('.stepper button');
+        if (btnMinus) btnMinus.onclick = () => allocationStepper(key, -STEP);
+        if (btnPlus) btnPlus.onclick = () => allocationStepper(key, STEP);
+      });
+      document.getElementById('phase-next').onclick = () => {
+        const sum = state.allocation.save + state.allocation.invest + state.allocation.spend + state.allocation.charity;
+        if (sum !== 100) { alert('Please set total to 100%.'); return; }
+        state.choices[phase.id] = state.allocation;
+        applyPhaseEffects(phase.id);
+        advancePhase();
+      };
+      return;
+    }
+
+    if (phase.type === 'invest') {
+      phase.options.forEach(opt => {
+        html += `<button class="btn ${opt.haram ? 'btn-haram' : 'btn-secondary'}" data-choice="${opt.id}" data-haram="${!!opt.haram}">${opt.label}</button>`;
+      });
+      html += `<button class="btn btn-secondary" id="edu-invest">Learn: Halal vs Riba</button>`;
+      html += '</div>';
+      container.innerHTML = html;
+      phase.options.forEach(opt => {
+        container.querySelector(`[data-choice="${opt.id}"]`).onclick = () => {
+          if (opt.haram) showEducation('riba');
+          else showEducation('halal_invest');
+          state.choices[phase.id] = opt.id;
+          applyPhaseEffects(phase.id, opt.id);
+          advancePhase();
+          emitSound(opt.haram ? 'warn' : 'success');
+        };
+      });
+      document.getElementById('edu-invest').onclick = () => showEducation('riba');
+      return;
+    }
+
+    if (phase.type === 'health') {
+      html += `<p>Emergency fund: $${Math.round(state.emergencyFund).toLocaleString()}. Medical need: ~$12,000.</p>`;
+      html += `<button class="btn btn-primary" id="phase-next">Face crisis</button>`;
+      container.innerHTML = html;
+      document.getElementById('phase-next').onclick = () => {
+        state.choices[phase.id] = 'faced';
+        applyPhaseEffects(phase.id);
+        advancePhase();
+      };
+      return;
+    }
+
+    if (phase.type === 'sadaqah') {
+      html += `<button class="btn btn-secondary" id="edu-sad">Learn: Sadaqah Jariyah</button>`;
+      html += `<button class="btn btn-primary" id="phase-sadaqah">Give Sadaqah Jariyah ($5,000)</button>`;
+      html += '</div>';
+      container.innerHTML = html;
+      document.getElementById('edu-sad').onclick = () => showEducation('sadaqah_jariyah');
+      document.getElementById('phase-sadaqah').onclick = () => {
+        state.choices[phase.id] = 'yes';
+        applyPhaseEffects(phase.id);
+        advancePhase();
+        emitSound('success');
+      };
+      return;
+    }
+
+    if (phase.type === 'legacy') {
+      html += `<p>You distribute your estate according to faraidh. Time to see your balance.</p>`;
+      html += `<button class="btn btn-primary" id="phase-next">See results</button>`;
+      container.innerHTML = html;
+      document.getElementById('phase-next').onclick = () => { state.phaseIndex++; renderPhase(); }; // legacy: no more phases, renderPhase shows final
+      return;
+    }
+
+    if (phase.type === 'choice') {
+      phase.options.forEach(opt => {
+        html += `<button class="btn ${opt.haram ? 'btn-haram' : 'btn-secondary'}" data-choice="${opt.id}">${opt.label}</button>`;
+      });
+      if (phase.id === 'marriage') html += `<button class="btn btn-secondary" id="edu-israf">Learn: Moderation</button>`;
+      if (phase.id === 'realestate') html += `<button class="btn btn-secondary" id="edu-real">Learn: Halal real estate</button>`;
+      html += '</div>';
+      container.innerHTML = html;
+      phase.options.forEach(opt => {
+        container.querySelector(`[data-choice="${opt.id}"]`).onclick = () => {
+          if (opt.haram && phase.id === 'marriage') showEducation('israf');
+          if (phase.id === 'realestate') showEducation(opt.haram ? 'riba' : 'realestate_halal');
+          state.choices[phase.id] = opt.id;
+          applyPhaseEffects(phase.id, opt.id);
+          advancePhase();
+          emitSound(opt.haram ? 'warn' : 'success');
+        };
+      });
+      if (document.getElementById('edu-israf')) document.getElementById('edu-israf').onclick = () => showEducation('israf');
+      if (document.getElementById('edu-real')) document.getElementById('edu-real').onclick = () => showEducation('realestate_halal');
+      return;
+    }
+
+    container.innerHTML = html + '</div>';
+  }
+
+  function updateSliders() {
+    const a = state.allocation;
+    const sum = a.save + a.invest + a.spend + a.charity;
+    ['save','invest','spend','charity'].forEach(k => {
+      const el = document.querySelector(`#s_${k}`);
+      if (el) el.previousElementSibling.querySelector('span').textContent = a[k] + '%';
+    });
+    const totalEl = document.querySelector('.slider-total');
+    if (totalEl) { totalEl.textContent = 'Total: ' + sum + '%'; totalEl.className = 'slider-total ' + (sum === 100 ? 'ok' : 'warn'); }
+  }
+
+  function financialScore() {
+    const maxWealth = 1200000;
+    return Math.min(100, Math.max(0, Math.round((state.wealth / maxWealth) * 100)));
+  }
+  function socialScore() { return Math.round(state.social); }
+  function spiritualScore() { return Math.round(state.spiritual); }
+
+  function renderFinal() {
+    showScreen('final-screen');
+    const fin = financialScore(), soc = socialScore(), spi = spiritualScore();
+    document.getElementById('final-name').textContent = state.character.name;
+    document.getElementById('final-financial').textContent = fin;
+    document.getElementById('final-social').textContent = soc;
+    document.getElementById('final-spiritual').textContent = spi;
+
+    let verdict = '';
+    const avg = (fin + soc + spi) / 3;
+    if (avg >= 70 && soc >= 60 && spi >= 60) verdict = 'You won at life: balanced wealth, relationships, and faith.';
+    else if (fin >= 75 && (soc < 50 || spi < 50)) verdict = 'You chased money—but at what cost?';
+    else if (soc >= 70 && spi >= 70) verdict = 'Rich in community and spirit.';
+    else verdict = 'Your balance sheet shows room for growth. Play again and try different choices.';
+    document.getElementById('verdict').textContent = verdict;
+
+    const canvas = document.getElementById('radarCanvas');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, R = Math.min(cx,cy) - 20;
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    for (let r = 0.25; r <= 1; r += 0.25) {
+      ctx.beginPath();
+      for (let i = 0; i <= 3; i++) {
+        const angle = (i * 2 * Math.PI / 3) - Math.PI/2;
+        const x = cx + R * r * Math.cos(angle), y = cy + R * r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.closePath(); ctx.stroke(); ctx.fill();
+    }
+    const labels = ['Financial','Well-being','Spiritual'];
+    const values = [fin/100, soc/100, spi/100];
+    ctx.fillStyle = 'rgba(201,162,39,0.4)';
+    ctx.strokeStyle = '#e8d48b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const angle = (i * 2 * Math.PI / 3) - Math.PI/2;
+      const x = cx + R * values[i] * Math.cos(angle), y = cy + R * values[i] * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#f5f0e6';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    for (let i = 0; i < 3; i++) {
+      const angle = (i * 2 * Math.PI / 3) - Math.PI/2;
+      const x = cx + (R + 15) * Math.cos(angle), y = cy + (R + 15) * Math.sin(angle);
+      ctx.fillText(labels[i], x, y);
+    }
+    emitSound('success');
+  }
+
+  function startGame() {
+    state.character = { name: state.name || 'Traveler', id: state.occupation || 'custom' };
+    state.phaseIndex = 0;
+    state.age = 22;
+    state.wealth = 0;
+    state.monthlyIncome = 3000;
+    state.barakah = 1.0;
+    state.social = 50;
+    state.spiritual = 50;
+    state.choices = {};
+    state.events = [];
+    state.allocation = { save: 20, invest: 10, spend: 60, charity: 10 };
+    state.emergencyFund = 0;
+    state.married = false;
+    state.divorced = false;
+    state.sadaqahDone = false;
+    showScreen('game-screen');
+    renderPhase();
+    document.getElementById('game-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showCharStep(stepNum) {
+    document.querySelectorAll('.char-step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById('char-step-' + stepNum);
+    if (el) el.classList.add('active');
+  }
+
+  document.getElementById('char-next-1').onclick = () => {
+    state.name = document.getElementById('input-name').value.trim() || 'Traveler';
+    showCharStep(2);
+  };
+  document.getElementById('char-back-2').onclick = () => showCharStep(1);
+  document.getElementById('char-back-3').onclick = () => showCharStep(2);
+  document.getElementById('char-next-3').onclick = () => {
+    if (!state.occupation) { alert('Please choose your occupation.'); return; }
+    document.getElementById('char-summary').textContent = state.name + ', you are 22. $3,000/month. No assets. Your choices will shape your life.';
+    showCharStep(4);
+  };
+
+  ['male', 'female'].forEach(sex => {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    card.dataset.sex = sex;
+    card.innerHTML = '<div class="name">' + (sex === 'male' ? 'Male' : 'Female') + '</div>';
+    card.onclick = () => {
+      document.querySelectorAll('#sex-grid .char-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.sex = sex;
+    };
+    document.getElementById('sex-grid').appendChild(card);
+  });
+
+  function renderOccupationGrid() {
+    const grid = document.getElementById('occupation-grid');
+    grid.innerHTML = '';
+    const list = state.sex === 'female'
+      ? OCCUPATIONS
+      : OCCUPATIONS.filter(o => !o.femaleOnly);
+    list.forEach(occ => {
+      const card = document.createElement('div');
+      card.className = 'char-card';
+      card.dataset.occupation = occ.id;
+      card.innerHTML = '<div class="name">' + occ.label + '</div>';
+      card.onclick = () => {
+        document.querySelectorAll('#occupation-grid .char-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        state.occupation = occ.id;
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById('char-next-2').onclick = () => {
+    if (!state.sex) { alert('Please choose your sex.'); return; }
+    renderOccupationGrid();
+    state.occupation = '';
+    document.querySelectorAll('#occupation-grid .char-card').forEach(c => c.classList.remove('selected'));
+    showCharStep(3);
+  };
+
+  document.getElementById('char-screen').addEventListener('click', function(e) {
+    if (e.target.id === 'start-game' || e.target.closest('#start-game')) { e.preventDefault(); startGame(); }
+  });
+  document.getElementById('save-btn').onclick = () => {
+    localStorage.setItem('mizan_save', JSON.stringify(state));
+    emitSound('success');
+    alert('Progress saved.');
+  };
+  document.getElementById('load-btn').onclick = () => {
+    const saved = localStorage.getItem('mizan_save');
+    if (!saved) { alert('No save found.'); return; }
+    state = JSON.parse(saved);
+    showScreen('game-screen');
+    renderPhase();
+    document.getElementById('game-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    emitSound('success');
+  };
+  document.getElementById('replay-btn').onclick = () => { showScreen('char-screen'); showCharStep(1); };
+  document.getElementById('share-btn').onclick = () => {
+    const fin = financialScore(), soc = socialScore(), spi = spiritualScore();
+    const text = `Mīzān: The Life Investor — ${state.character.name}: Financial ${fin}, Well-being ${soc}, Spiritual ${spi}.`;
+    if (navigator.share) navigator.share({ title: 'Mīzān', text }).catch(() => navigator.clipboard.writeText(text));
+    else navigator.clipboard.writeText(text).then(() => alert('Results copied to clipboard.'));
+  };
+  document.getElementById('skip-intro').onclick = () => {
+    clearTimeout(window._introTimeout);
+    showScreen('char-screen');
+    showCharStep(1);
+    document.getElementById('char-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  window._introTimeout = setTimeout(() => {
+    document.getElementById('intro-text').style.opacity = '1';
+    setTimeout(() => { document.getElementById('intro-verse').style.opacity = '1'; }, 800);
+    setTimeout(() => { showScreen('char-screen'); showCharStep(1); }, 28000);
+  }, 1500);
+})();
+  </script>
+</body>
+</html>
