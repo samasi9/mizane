@@ -137,13 +137,45 @@
     .stats-bar .money { color: var(--gold-light); }
     .stats-bar .barakah { color: #7fc97f; }
 
-    /* Modal / Education */
+    /* Modal / Education / Events / Quiz */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
     .modal-overlay.active { display: flex; }
     .modal { background: var(--green-mid); border-radius: 12px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 1.25rem; border: 1px solid var(--gold); }
     .modal h3 { color: var(--gold-light); margin-bottom: 0.5rem; font-size: 1rem; }
     .modal .verse { direction: rtl; text-align: right; font-style: italic; padding: 0.5rem 0; border-left: 3px solid var(--gold); padding-left: 0.75rem; margin: 0.5rem 0; }
     .modal .close-btn { margin-top: 1rem; width: 100%; padding: 0.75rem 1rem; min-height: 48px; background: var(--gold); color: var(--green-dark); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; touch-action: manipulation; }
+    #event-modal .modal {
+      /* Use your chosen yellow, but with dark text for readability */
+      background: rgba(219, 221, 85, 0.786);
+      color: var(--green-dark);
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.18);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+    }
+    #event-modal h3 {
+      color: var(--green-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+    #event-modal .close-btn {
+      margin-top: 1.25rem;
+      width: auto;
+      padding: 0.55rem 1.4rem;
+      min-height: 0;
+      background: var(--green-dark);
+      color: var(--cream);
+      font-size: 0.9rem;
+      border-radius: 999px;
+    }
+    .quiz-options { margin-top: 0.75rem; }
+    .quiz-item { display: block; padding: 0.4rem 0.5rem; border-radius: 6px; margin-bottom: 0.35rem; text-align: left; border: 1px solid transparent; }
+    .quiz-item input { margin-right: 0.5rem; }
+    .quiz-item.correct { background: rgba(127,201,127,0.15); border-color: #7fc97f; }
+    .quiz-item.wrong { background: rgba(242,142,142,0.15); border-color: #f28e8e; }
+    .quiz-actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .quiz-actions .close-btn { width: auto; flex: 0 0 auto; margin-top: 0; padding-inline: 1rem; }
 
     /* Random event */
     .event-banner { background: rgba(201,162,39,0.25); border: 1px solid var(--gold); border-radius: 8px; padding: 0.75rem 1rem; margin: 0.5rem 0 0.75rem; text-align: center; font-size: 0.95rem; }
@@ -157,6 +189,16 @@
     .score-card .value { font-size: 1.75rem; font-weight: bold; color: var(--gold-light); }
     .verdict { font-size: 1.1rem; margin: 1.5rem 0; padding: 1rem; border-radius: 8px; background: rgba(0,0,0,0.2); }
     .radar-wrap { margin: 1.5rem auto; max-width: 280px; }
+    .invest-summary { margin: 1.5rem auto; max-width: 480px; text-align: left; }
+    .invest-summary h2 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--gold-light); }
+    .invest-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+    .invest-card { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.85rem; }
+    .invest-card .label { font-weight: 600; margin-bottom: 0.25rem; }
+    .invest-card .line { display: flex; justify-content: space-between; margin-top: 0.15rem; }
+    .invest-card .line span { font-variant-numeric: tabular-nums; }
+    .invest-card .pl { font-weight: 600; }
+    .invest-card .pl-pos { color: #7fc97f; }
+    .invest-card .pl-neg { color: #f28e8e; }
     #radarCanvas { width: 100%; height: auto; display: block; border-radius: 8px; background: rgba(0,0,0,0.15); }
     .final-actions { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
 
@@ -229,7 +271,7 @@
     </div>
     <!-- Step 2: Sex -->
     <div id="char-step-2" class="char-step">
-      <h1 style="color:var(--gold-light); margin-bottom:0.5rem;">Choose your sex</h1>
+      <h1 style="color:var(--gold-light); margin-bottom:0.5rem;">Choose your gender</h1>
       <div class="char-grid" id="sex-grid"></div>
       <div class="step-actions" style="margin-top:1rem;">
         <button class="btn btn-secondary" id="char-back-2">Back</button>
@@ -270,13 +312,14 @@
       <div class="progress-labels"><span>22</span><span>60</span></div>
     </div>
     <div class="stats-bar">
-      <span class="money">💰 Patrimony: <span id="stat-wealth">$0</span></span>
       <span class="barakah">✨ Barakah: <span id="stat-barakah">1.00</span>x</span>
+      <span class="money">💰 Patrimony: <span id="stat-wealth">$0</span></span>
       <span>👥 Well-being: <span id="stat-social">50</span></span>
       <span>🕌 Spiritual: <span id="stat-spiritual">50</span></span>
     </div>
     <div id="event-banner" class="event-banner" style="display:none;"></div>
     <div id="phase-content"></div>
+    <div id="invest-summary-game" class="invest-summary"></div>
   </div>
 
   <div id="final-screen" class="screen">
@@ -289,6 +332,7 @@
     </div>
     <div class="verdict" id="verdict"></div>
     <div class="radar-wrap"><canvas id="radarCanvas" width="280" height="280"></canvas></div>
+    <div id="invest-summary-final" class="invest-summary"></div>
     <div class="final-actions">
       <button class="btn btn-primary" id="replay-btn">Play again</button>
       <button class="btn btn-secondary" id="share-btn">Share results</button>
@@ -301,6 +345,25 @@
       <p id="edu-body"></p>
       <div id="edu-verse" class="verse"></div>
       <button class="close-btn" id="edu-close">Continue</button>
+    </div>
+  </div>
+
+  <div id="quiz-modal" class="modal-overlay">
+    <div class="modal">
+      <h3 id="quiz-title">Quiz</h3>
+      <div id="quiz-body"></div>
+      <div class="quiz-actions">
+        <button class="close-btn" id="quiz-validate">Validate</button>
+        <button class="close-btn" id="quiz-continue" style="display:none;">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="event-modal" class="modal-overlay">
+    <div class="modal">
+      <h3 id="event-title">Life event</h3>
+      <p id="event-body"></p>
+      <button class="close-btn" id="event-close">Continue</button>
     </div>
   </div>
 
@@ -318,8 +381,15 @@
   const PHASES = [
     { age: 22, id: 'allocation', title: 'First salary allocation', desc: 'You receive your first salary. How will you split it?', type: 'sliders', keys: ['save','invest','spend','charity'] },
     { age: 23, id: 'first_invest', title: 'First investment', desc: 'Choose where to put your savings.', type: 'invest', options: [
-      { id: 'halal', label: 'Halal (sukuk, gold, halal REITs)', haram: false },
-      { id: 'riba', label: 'Conventional stocks/bonds (riba)', haram: true }
+      { id: 'sukuk', label: 'Halal sukuk fund (~4%/year, low risk)', haram: false, kind: 'halal_low' },
+      { id: 'equity_halal', label: 'Halal global equity fund (~7%/year, medium risk)', haram: false, kind: 'halal_equity' },
+      { id: 'gold', label: 'Gold savings plan (3–6%/year, volatile)', haram: false, kind: 'gold' },
+      { id: 'riba_high', label: 'High-yield savings (riba, ~5%/year)', haram: true, kind: 'riba' }
+    ]},
+    { age: 24, id: 'quiz_emergency', title: 'Quiz: Emergency fund', desc: 'Tick all statements that are good practice for an emergency fund.', type: 'quiz', options: [
+      { id: 'q1', label: 'Keep 3–6 months of essential expenses saved.', correct: true },
+      { id: 'q2', label: 'It is okay to rely on credit cards for emergencies.', correct: false },
+      { id: 'q3', label: 'Emergency fund should be separate from day‑to‑day spending.', correct: true }
     ]},
     { age: 25, id: 'promotion', title: 'Promotion — lifestyle inflation?', desc: 'You got a raise. Do you upgrade your lifestyle or save the difference?', type: 'choice', options: [
       { id: 'resist', label: 'Save the difference' },
@@ -333,6 +403,12 @@
       { id: 'accept', label: 'Accept (higher income)' },
       { id: 'decline', label: 'Decline (stay with family)' }
     ]},
+    { age: 30, id: 'invest_mid', title: 'Portfolio check-in', desc: 'You review your growing savings. How do you invest going forward?', type: 'invest', options: [
+      { id: 'sukuk', label: 'Halal sukuk fund (~4%/year, low risk)', haram: false, kind: 'halal_low' },
+      { id: 'equity_halal', label: 'Halal global equity fund (~7%/year, medium risk)', haram: false, kind: 'halal_equity' },
+      { id: 'gold', label: 'Gold savings plan (3–6%/year, volatile)', haram: false, kind: 'gold' },
+      { id: 'riba_high', label: 'High-yield savings (riba, ~5%/year)', haram: true, kind: 'riba' }
+    ]},
     { age: 32, id: 'realestate', title: 'Real estate', desc: 'Buy a home: halal or conventional?', type: 'choice', options: [
       { id: 'halal', label: 'Halal (murabaha / ijara / musharakah)' },
       { id: 'riba', label: 'Riba mortgage', haram: true }
@@ -342,11 +418,30 @@
       { id: 'start', label: 'Start business' },
       { id: 'stay', label: 'Stay employed' }
     ]},
+    { age: 39, id: 'quiz_riba', title: 'Quiz: Riba vs trade', desc: 'Which of these statements are correct about riba?', type: 'quiz', options: [
+      { id: 'q1', label: '"Allah has permitted trade and forbidden riba."', correct: true },
+      { id: 'q2', label: '"Riba is allowed if it helps the poor."', correct: false },
+      { id: 'q3', label: 'Riba is more serious than committing adultery several times.', correct: true }
+    ]},
     { age: 42, id: 'marriage_crisis', title: 'Marriage crisis', desc: 'Invest in family or neglect?', type: 'choice', options: [
       { id: 'invest', label: 'Counseling & time with family' },
       { id: 'neglect', label: 'Focus on work only' }
     ]},
+    { age: 45, id: 'invest_late', title: 'Pre-retirement investing', desc: 'With retirement on the horizon, how do you position your portfolio?', type: 'invest', options: [
+      { id: 'sukuk', label: 'Halal sukuk fund (~4%/year, low risk)', haram: false, kind: 'halal_low' },
+      { id: 'equity_halal', label: 'Halal global equity fund (~7%/year, medium risk)', haram: false, kind: 'halal_equity' },
+      { id: 'gold', label: 'Gold savings plan (3–6%/year, volatile)', haram: false, kind: 'gold' },
+      { id: 'riba_high', label: 'High-yield savings (riba, ~5%/year)', haram: true, kind: 'riba' }
+    ]},
     { age: 48, id: 'sadaqah', title: 'Sadaqah Jariyah', desc: 'Perpetual charity: endowment, well, or school.', type: 'sadaqah' },
+    { age: 52, id: 'late_career', title: 'Late career choices', desc: 'You are in your early 50s. How do you balance work and rest?', type: 'choice', options: [
+      { id: 'keep_working', label: 'Keep working full-time a bit longer' },
+      { id: 'slow_down', label: 'Slow down and free more time for family' }
+    ]},
+    { age: 56, id: 'support_family', title: 'Supporting family', desc: 'Your adult children and extended family sometimes rely on you.', type: 'choice', options: [
+      { id: 'generous', label: 'Be generous but within your means' },
+      { id: 'overextend', label: 'Say yes to every request (even on credit)', haram: true }
+    ]},
     { age: 60, id: 'legacy', title: 'Legacy — Wasiyah', desc: 'Islamic will (faraidh). Allocate your estate and reflect.', type: 'legacy' }
   ];
 
@@ -360,18 +455,155 @@
   };
 
   const RANDOM_EVENTS = [
-    { id: 'job_loss', label: 'Job loss', prob: 0.12, effect: (s) => { s.wealth = Math.max(0, s.wealth - 15000); s.social -= 5; } },
-    { id: 'market_crash', label: 'Market crash', prob: 0.1, effect: (s) => { const hit = s.barakah < 1 ? 0.15 : 0.08; s.wealth *= (1 - hit); } },
-    { id: 'inheritance', label: 'Inheritance', prob: 0.08, effect: (s) => { s.wealth += 20000; s.spiritual += 2; } },
-    { id: 'haram_offer', label: 'Haram opportunity (high return)', prob: 0.1, effect: (s) => { s.wealth += 8000; s.spiritual -= 10; s.barakah = Math.max(0.7, s.barakah - 0.1); } },
-    { id: 'community_need', label: 'Community need', prob: 0.15, effect: (s) => { s.wealth -= 2000; s.social += 8; s.spiritual += 6; s.barakah = Math.min(1.25, s.barakah + 0.03); } }
+    {
+      id: 'job_loss',
+      label: 'Job loss',
+      once: false,
+      effect: (s) => {
+        const hit = 0.35;
+        s.wealth = Math.max(0, s.wealth * (1 - hit));
+        if (s.investmentStats) {
+          Object.values(s.investmentStats).forEach(st => { st.value *= (1 - hit * 0.6); });
+        }
+        s.social -= 8;
+      }
+    },
+    {
+      id: 'market_crash',
+      label: 'Market crash',
+      once: false,
+      effect: (s) => {
+        const hit = s.barakah < 1 ? 0.25 : 0.15;
+        s.wealth *= (1 - hit);
+        if (s.investmentStats) {
+          Object.values(s.investmentStats).forEach(st => { st.value *= (1 - hit); });
+        }
+      }
+    },
+    {
+      id: 'inheritance',
+      label: 'Inheritance',
+      once: true,
+      effect: (s) => { s.wealth += 30000; s.spiritual += 3; }
+    },
+    {
+      id: 'community_need',
+      label: 'Community need',
+      once: false,
+      effect: (s) => {
+        const give = 4000;
+        s.wealth -= give;
+        s.social += 10;
+        s.spiritual += 7;
+        s.barakah = Math.min(1.3, s.barakah + 0.05);
+      }
+    },
+    {
+      id: 'divorce_event',
+      label: 'Divorce',
+      once: true,
+      effect: (s) => {
+        if (!s.married || s.divorced) return;
+        s.divorced = true;
+        s.married = false;
+        s.wealth *= 0.5;
+        if (s.investmentStats) {
+          Object.values(s.investmentStats).forEach(st => { st.value *= 0.5; });
+        }
+        s.social = Math.max(0, s.social - 30);
+        s.spiritual -= 8;
+      }
+    },
+    {
+      id: 'remarry_event',
+      label: 'Second marriage',
+      once: true,
+      effect: (s) => {
+        if (!s.divorced || s.married) return;
+        s.married = true;
+        s.wealth -= 8000;
+        s.social += 20;
+        s.spiritual += 8;
+      }
+    },
+    {
+      id: 'loan_event',
+      label: 'You gave a loan to a friend',
+      once: false,
+      effect: (s) => {
+        const amt = 6000;
+        s.wealth -= amt;
+        s.social += 10;
+        s.spiritual += 5;
+        s.barakah = Math.min(1.35, s.barakah + 0.05);
+      }
+    },
+    {
+      id: 'help_child_house',
+      label: 'You helped your child buy a home',
+      once: false,
+      minAge: 48,
+      effect: (s) => {
+        const give = 20000;
+        s.wealth -= give;
+        if (s.investmentStats) {
+          let largestKey = null;
+          let largest = -Infinity;
+          Object.entries(s.investmentStats).forEach(([k, st]) => {
+            const v = st.value || 0;
+            if (v > largest) { largest = v; largestKey = k; }
+          });
+          if (largestKey && s.investmentStats[largestKey]) {
+            s.investmentStats[largestKey].value = Math.max(0, s.investmentStats[largestKey].value - give * 0.7);
+          }
+        }
+        s.social += 15;
+        s.spiritual += 8;
+        s.barakah = Math.min(1.4, s.barakah + 0.05);
+      }
+    },
+    {
+      id: 'late_health_event',
+      label: 'Late-life health costs',
+      once: false,
+      minAge: 52,
+      effect: (s) => {
+        const cost = 12000;
+        s.wealth -= cost;
+        if (s.emergencyFund && s.emergencyFund > 0) {
+          const use = Math.min(s.emergencyFund, cost);
+          s.emergencyFund -= use;
+          s.wealth += use;
+        }
+        if (s.investmentStats) {
+          Object.values(s.investmentStats).forEach(st => { st.value *= 0.97; });
+        }
+        s.social -= 5;
+        s.spiritual += 3;
+      }
+    },
+    {
+      id: 'waqf_event',
+      label: 'You created a small family waqf',
+      once: true,
+      minAge: 55,
+      effect: (s) => {
+        const give = 15000;
+        s.wealth -= give;
+        if (s.investmentStats && s.investmentStats.halal_low) {
+          s.investmentStats.halal_low.value += give * 0.3;
+        }
+        s.spiritual += 12;
+        s.barakah = Math.min(1.5, s.barakah + 0.08);
+      }
+    }
   ];
 
   let state = {
     phaseIndex: 0,
     age: 22,
     wealth: 0,
-    monthlyIncome: 3000,
+    monthlyIncome: 2000,
     barakah: 1.0,
     social: 50,
     spiritual: 50,
@@ -385,27 +617,58 @@
     emergencyFund: 0,
     married: false,
     divorced: false,
-    sadaqahDone: false
+    sadaqahDone: false,
+    investmentStats: {
+      halal_low:   { contrib: 0, value: 0 },
+      halal_equity:{ contrib: 0, value: 0 },
+      gold:        { contrib: 0, value: 0 },
+      riba:        { contrib: 0, value: 0 }
+    },
+    currentInvestProfile: null
   };
 
-  const SALARY_GROWTH = 1.04;
-  const HALAL_RETURN = 0.06;
-  const RIBA_RETURN = 0.07;
-  const RIBA_VOLATILITY = 0.2;
-  const SAVINGS_RATE = 0.25; // effective savings from "save+invest" allocation
+  const SALARY_GROWTH = 1.03;
+  const HALAL_RETURN = 0.05;
+  const RIBA_RETURN = 0.06;
+  const RIBA_VOLATILITY = 0.15;
+  const SAVINGS_RATE = 0.2; // effective savings from "save+invest" allocation
+
+  const RETURN_PROFILES = {
+    halal_low:   { base: 0.03, vol: 0.01 },  // sukuk-style
+    halal_equity:{ base: 0.06, vol: 0.10 },  // equity fund
+    gold:        { base: 0.045, vol: 0.14 }, // more volatile
+    riba:        { base: 0.04, vol: 0.02 },  // conventional interest
+  };
 
   function simulateYears(years) {
     if (years <= 0) return;
-    const investChoice = state.choices.first_invest || 'halal';
-    const returnRate = investChoice === 'riba'
-      ? RIBA_RETURN + (Math.random() - 0.5) * RIBA_VOLATILITY
-      : HALAL_RETURN * state.barakah;
+    const profileKey = state.currentInvestProfile;
+    const profile = profileKey ? (RETURN_PROFILES[profileKey] || null) : null;
+    let base = profile ? profile.base : 0;
+    let vol = profile ? profile.vol : 0;
+
+    if (profileKey && profileKey !== 'riba') {
+      // halal profiles benefit from barakah
+      base *= state.barakah || 1;
+    }
+
     for (let y = 0; y < years; y++) {
       state.monthlyIncome *= SALARY_GROWTH;
       const annualIncome = state.monthlyIncome * 12;
       const savings = annualIncome * SAVINGS_RATE;
       state.wealth += savings;
-      state.wealth *= (1 + returnRate);
+      if (profileKey && profile) {
+        const yearlyReturn = base + (Math.random() - 0.5) * vol;
+        state.wealth *= (1 + yearlyReturn);
+        // track per-profile investment stats
+        if (state.investmentStats && state.investmentStats[profileKey]) {
+          const stats = state.investmentStats[profileKey];
+          stats.contrib += savings;
+          stats.value += savings;
+          stats.value *= (1 + yearlyReturn);
+        }
+      }
+
       state.emergencyFund += annualIncome * 0.05;
     }
   }
@@ -444,9 +707,15 @@
   function advancePhase() {
     const currentAge = state.age;
     const nextPhase = PHASES[state.phaseIndex + 1];
-    if (nextPhase && nextPhase.age > currentAge) simulateYears(nextPhase.age - currentAge);
+    if (!nextPhase) {
+      renderFinal();
+      return;
+    }
+    const yearsAdvanced = Math.max(0, nextPhase.age - currentAge);
+    if (yearsAdvanced > 0) simulateYears(yearsAdvanced);
     state.phaseIndex++;
-    maybeTriggerRandomEvent();
+    state.age = nextPhase.age;
+    maybeTriggerRandomEvent(yearsAdvanced);
     renderPhase();
   }
 
@@ -460,9 +729,19 @@
       state.spiritual = Math.min(100, state.spiritual + (a.charity / 8));
       state.barakah = Math.min(1.25, state.barakah + (a.charity / 800));
     }
-    if (phaseId === 'first_invest') {
-      if (choiceId === 'riba') { state.barakah = Math.max(0.85, state.barakah - 0.05); state.spiritual -= 5; }
-      else { state.barakah = Math.min(1.2, state.barakah + 0.03); state.spiritual += 3; }
+    // investment phases: update current profile and barakah/spiritual
+    const investPhase = PHASES.find(p => p.id === phaseId && p.type === 'invest');
+    if (investPhase) {
+      const opt = investPhase.options.find(o => o.id === choiceId);
+      if (opt && opt.kind) state.currentInvestProfile = opt.kind;
+      if (opt && opt.haram) {
+        // choosing riba-like products severely damages barakah
+        state.barakah = Math.max(0.1, state.barakah * 0.2); // lose ~80%
+        state.spiritual -= 10;
+      } else {
+        state.barakah = Math.min(1.2, state.barakah + 0.03);
+        state.spiritual += 3;
+      }
     }
     if (phaseId === 'promotion') {
       state.monthlyIncome *= 1.2 * ar;
@@ -471,16 +750,30 @@
     }
     if (phaseId === 'marriage') {
       state.married = true;
-      if (choiceId === 'simple') { state.social += 15; state.spiritual += 10; state.barakah = Math.min(1.2, state.barakah + 0.05); }
-      else { state.wealth -= 25000; state.social += 5; state.spiritual -= 8; }
+      if (choiceId === 'simple') {
+        state.social += 15;
+        state.spiritual += 10;
+        state.barakah = Math.min(1.2, state.barakah + 0.05);
+      } else {
+        state.wealth -= 25000;
+        state.social += 5;
+        state.spiritual -= 8;
+      }
+      showEventBanner('Marriage — your household expenses are now about 20% higher.');
     }
     if (phaseId === 'expat') {
       if (choiceId === 'accept') { state.monthlyIncome *= 1.4; state.social -= 12; }
       else { state.monthlyIncome *= 1.05; state.social += 10; }
     }
     if (phaseId === 'realestate') {
-      if (choiceId === 'halal') { state.wealth += 18000 * state.barakah; state.spiritual += 8; }
-      else { state.wealth += 22000; state.spiritual -= 10; state.barakah = Math.max(0.8, state.barakah - 0.08); }
+      if (choiceId === 'halal') {
+        state.wealth += 18000 * state.barakah;
+        state.spiritual += 8;
+      } else {
+        state.wealth += 22000;
+        state.spiritual -= 12;
+        state.barakah = Math.max(0.1, state.barakah * 0.2); // strong riba impact
+      }
     }
     if (phaseId === 'health') {
       const need = 12000;
@@ -496,29 +789,106 @@
     }
     if (phaseId === 'marriage_crisis') {
       if (choiceId === 'neglect') {
-        if (Math.random() < 0.5) { state.divorced = true; state.wealth *= 0.5; state.social = Math.max(0, state.social - 25); }
-        else state.social -= 10;
-      } else { state.social += 15; state.spiritual += 5; }
+        if (!state.divorced && state.married && Math.random() < 0.5) {
+          state.divorced = true;
+          state.married = false;
+          state.wealth *= 0.5;
+          state.social = Math.max(0, state.social - 25);
+        } else {
+          state.social -= 10;
+        }
+      } else {
+        state.social += 15;
+        state.spiritual += 5;
+      }
+    }
+    if (phaseId === 'late_career') {
+      if (choiceId === 'keep_working') {
+        state.monthlyIncome *= 1.1;
+        state.social -= 3;
+      } else if (choiceId === 'slow_down') {
+        state.monthlyIncome *= 0.95;
+        state.social += 8;
+        state.spiritual += 4;
+      }
+    }
+    if (phaseId === 'support_family') {
+      if (choiceId === 'generous') {
+        state.wealth -= 8000;
+        state.social += 10;
+        state.spiritual += 6;
+        state.barakah = Math.min(1.4, state.barakah + 0.05);
+      } else if (choiceId === 'overextend') {
+        state.wealth -= 15000;
+        state.social += 5;
+        state.spiritual -= 6;
+        state.barakah = Math.max(0.9, state.barakah - 0.05);
+      }
     }
     if (phaseId === 'sadaqah') {
       state.wealth -= 5000; state.spiritual += 15; state.barakah = Math.min(1.25, state.barakah + 0.1); state.sadaqahDone = true;
     }
-    state.age = getPhase().age;
     state.social = Math.max(0, Math.min(100, state.social));
     state.spiritual = Math.max(0, Math.min(100, state.spiritual));
   }
 
-  function maybeTriggerRandomEvent() {
+  function maybeTriggerRandomEvent(yearsAdvanced) {
     if (state.phaseIndex <= 0 || state.phaseIndex >= PHASES.length - 1) return;
-    const ev = RANDOM_EVENTS.find(e => Math.random() < e.prob);
-    if (ev && !state.events.includes(ev.id)) { ev.effect(state); state.events.push(ev.id); showEventBanner(ev.label); }
+    if (state.age < 30) return;
+    const years = Math.max(1, yearsAdvanced || 1);
+    // Target ~1 event every 4–5 years
+    const baseRatePerYear = 0.3;
+    const chance = 1 - Math.pow(1 - baseRatePerYear, years);
+    if (Math.random() > chance) return;
+
+    const available = RANDOM_EVENTS.filter(e =>
+      (!e.once || !state.events.includes(e.id)) &&
+      (e.minAge == null || state.age >= e.minAge) &&
+      (e.maxAge == null || state.age <= e.maxAge)
+    );
+    if (!available.length) return;
+    const ev = available[Math.floor(Math.random() * available.length)];
+
+    const beforeWealth = state.wealth;
+    const beforeInv = state.investmentStats
+      ? Object.values(state.investmentStats).reduce((sum, st) => sum + (st.value || 0), 0)
+      : 0;
+
+    ev.effect(state);
+    if (ev.once) state.events.push(ev.id);
+
+    const afterWealth = state.wealth;
+    const afterInv = state.investmentStats
+      ? Object.values(state.investmentStats).reduce((sum, st) => sum + (st.value || 0), 0)
+      : 0;
+
+    const dWealth = Math.round(afterWealth - beforeWealth);
+    const dInv = Math.round(afterInv - beforeInv);
+    const fmt = (v) => '$' + Math.abs(v).toLocaleString();
+
+    let msg = ev.label;
+    const parts = [];
+    if (dWealth < 0) parts.push(`you lost ${fmt(dWealth)} in patrimony`);
+    else if (dWealth > 0) parts.push(`you gained ${fmt(dWealth)} in patrimony`);
+    if (dInv < 0) parts.push(`and ${fmt(dInv)} on investments`);
+    else if (dInv > 0) parts.push(`and ${fmt(dInv)} on investments`);
+    if (parts.length) msg += ' — ' + parts.join(' ');
+
+    showEventBanner(msg);
   }
 
   function showEventBanner(label) {
-    const el = document.getElementById('event-banner');
-    el.textContent = '📌 Event: ' + label;
-    el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 10000);
+    const modal = document.getElementById('event-modal');
+    const titleEl = document.getElementById('event-title');
+    const bodyEl = document.getElementById('event-body');
+    const closeBtn = document.getElementById('event-close');
+    if (!modal || !titleEl || !bodyEl || !closeBtn) return;
+    titleEl.textContent = 'Life event';
+    bodyEl.textContent = label;
+    modal.classList.add('active');
+    closeBtn.onclick = () => {
+      modal.classList.remove('active');
+    };
   }
 
   function renderPhase() {
@@ -540,7 +910,7 @@
 
     if (phase.type === 'sliders') {
       const a = state.allocation;
-      const monthly = state.monthlyIncome || 3000;
+      const monthly = state.monthlyIncome || 2000;
       const STEP = 5;
       const row = (key, label) => {
         const pct = a[key];
@@ -557,10 +927,9 @@
       const sum = a.save + a.invest + a.spend + a.charity;
       html += row('save', 'Save') + row('invest', 'Invest') + row('spend', 'Spend') + row('charity', 'Charity');
       html += `<div class="slider-total ${sum === 100 ? 'ok' : 'warn'}">Total: ${sum}% ($${Math.round(monthly * sum / 100).toLocaleString()}/mo)</div>`;
-      html += `<button class="btn btn-secondary" id="edu-alloc" style="margin-top:0.5rem;">Learn: Balance & barakah</button>`;
       html += `<button class="btn btn-primary" id="phase-next" style="margin-top:0.5rem;">Continue</button>`;
       container.innerHTML = html;
-      document.getElementById('edu-alloc').onclick = () => showEducation('allocation');
+      showEducation('allocation');
       function allocationStepper(key, delta) {
         const a = state.allocation;
         const other = ['save','invest','spend','charity'].filter(k => k !== key);
@@ -578,7 +947,7 @@
       }
       function refreshAllocationDisplay() {
         const a = state.allocation;
-        const monthly = state.monthlyIncome || 3000;
+        const monthly = state.monthlyIncome || 2000;
         const sum = a.save + a.invest + a.spend + a.charity;
         ['save','invest','spend','charity'].forEach(k => {
           const el = document.getElementById('val_' + k);
@@ -607,6 +976,15 @@
         applyPhaseEffects(phase.id);
         advancePhase();
       };
+      renderInvestmentSummary('invest-summary-game');
+      return;
+    }
+
+    if (phase.type === 'quiz') {
+      html += '</div>';
+      container.innerHTML = html;
+      showQuiz(phase);
+      renderInvestmentSummary('invest-summary-game');
       return;
     }
 
@@ -614,20 +992,18 @@
       phase.options.forEach(opt => {
         html += `<button class="btn ${opt.haram ? 'btn-haram' : 'btn-secondary'}" data-choice="${opt.id}" data-haram="${!!opt.haram}">${opt.label}</button>`;
       });
-      html += `<button class="btn btn-secondary" id="edu-invest">Learn: Halal vs Riba</button>`;
       html += '</div>';
       container.innerHTML = html;
+      showEducation('halal_invest');
       phase.options.forEach(opt => {
         container.querySelector(`[data-choice="${opt.id}"]`).onclick = () => {
-          if (opt.haram) showEducation('riba');
-          else showEducation('halal_invest');
           state.choices[phase.id] = opt.id;
           applyPhaseEffects(phase.id, opt.id);
           advancePhase();
           emitSound(opt.haram ? 'warn' : 'success');
         };
       });
-      document.getElementById('edu-invest').onclick = () => showEducation('riba');
+      renderInvestmentSummary('invest-summary-game');
       return;
     }
 
@@ -640,21 +1016,22 @@
         applyPhaseEffects(phase.id);
         advancePhase();
       };
+      renderInvestmentSummary('invest-summary-game');
       return;
     }
 
     if (phase.type === 'sadaqah') {
-      html += `<button class="btn btn-secondary" id="edu-sad">Learn: Sadaqah Jariyah</button>`;
       html += `<button class="btn btn-primary" id="phase-sadaqah">Give Sadaqah Jariyah ($5,000)</button>`;
       html += '</div>';
       container.innerHTML = html;
-      document.getElementById('edu-sad').onclick = () => showEducation('sadaqah_jariyah');
+      showEducation('sadaqah_jariyah');
       document.getElementById('phase-sadaqah').onclick = () => {
         state.choices[phase.id] = 'yes';
         applyPhaseEffects(phase.id);
         advancePhase();
         emitSound('success');
       };
+      renderInvestmentSummary('invest-summary-game');
       return;
     }
 
@@ -663,6 +1040,7 @@
       html += `<button class="btn btn-primary" id="phase-next">See results</button>`;
       container.innerHTML = html;
       document.getElementById('phase-next').onclick = () => { state.phaseIndex++; renderPhase(); }; // legacy: no more phases, renderPhase shows final
+      renderInvestmentSummary('invest-summary-game');
       return;
     }
 
@@ -670,26 +1048,24 @@
       phase.options.forEach(opt => {
         html += `<button class="btn ${opt.haram ? 'btn-haram' : 'btn-secondary'}" data-choice="${opt.id}">${opt.label}</button>`;
       });
-      if (phase.id === 'marriage') html += `<button class="btn btn-secondary" id="edu-israf">Learn: Moderation</button>`;
-      if (phase.id === 'realestate') html += `<button class="btn btn-secondary" id="edu-real">Learn: Halal real estate</button>`;
       html += '</div>';
       container.innerHTML = html;
+      if (phase.id === 'marriage') showEducation('israf');
+      if (phase.id === 'realestate') showEducation('realestate_halal');
       phase.options.forEach(opt => {
         container.querySelector(`[data-choice="${opt.id}"]`).onclick = () => {
-          if (opt.haram && phase.id === 'marriage') showEducation('israf');
-          if (phase.id === 'realestate') showEducation(opt.haram ? 'riba' : 'realestate_halal');
           state.choices[phase.id] = opt.id;
           applyPhaseEffects(phase.id, opt.id);
           advancePhase();
           emitSound(opt.haram ? 'warn' : 'success');
         };
       });
-      if (document.getElementById('edu-israf')) document.getElementById('edu-israf').onclick = () => showEducation('israf');
-      if (document.getElementById('edu-real')) document.getElementById('edu-real').onclick = () => showEducation('realestate_halal');
+      renderInvestmentSummary('invest-summary-game');
       return;
     }
 
     container.innerHTML = html + '</div>';
+    renderInvestmentSummary('invest-summary-game');
   }
 
   function updateSliders() {
@@ -703,6 +1079,119 @@
     if (totalEl) { totalEl.textContent = 'Total: ' + sum + '%'; totalEl.className = 'slider-total ' + (sum === 100 ? 'ok' : 'warn'); }
   }
 
+  const INVEST_TYPES = [
+    { key: 'halal_low', label: 'Halal sukuk' },
+    { key: 'halal_equity', label: 'Halal equity fund' },
+    { key: 'gold', label: 'Gold savings' },
+    { key: 'riba', label: 'Riba products' }
+  ];
+
+  function renderInvestmentSummary(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const stats = state.investmentStats || {};
+    let items = INVEST_TYPES.map(t => {
+      const s = stats[t.key] || { contrib: 0, value: 0 };
+      const contrib = Math.round(s.contrib || 0);
+      const value = Math.round(s.value || 0);
+      const pl = value - contrib;
+      return { label: t.label, contrib, value, pl };
+    }).filter(t => t.contrib > 0 || t.value > 0);
+
+    // For final screen, ensure gold is not a long-term loss
+    if (containerId === 'invest-summary-final') {
+      items = items.map(t => {
+        if (t.label === 'Gold savings' && t.value < t.contrib) {
+          t.value = t.contrib;
+          t.pl = 0;
+        }
+        return t;
+      });
+    }
+
+    if (!items.length) {
+      el.innerHTML = '';
+      return;
+    }
+
+    const fmt = v => '$' + v.toLocaleString();
+    let html = '<h2>Investment breakdown</h2><div class="invest-cards">';
+    items.forEach(t => {
+      const plClass = t.pl > 0 ? 'pl pl-pos' : t.pl < 0 ? 'pl pl-neg' : 'pl';
+      html += `<div class="invest-card">
+        <div class="label">${t.label}</div>
+        <div class="line"><span>Paid in</span><span>${fmt(t.contrib)}</span></div>
+        <div class="line"><span>Now</span><span>${fmt(t.value)}</span></div>
+        <div class="line"><span>P/L</span><span class="${plClass}">${fmt(t.pl)}</span></div>
+      </div>`;
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  function showQuiz(phase) {
+    const modal = document.getElementById('quiz-modal');
+    const titleEl = document.getElementById('quiz-title');
+    const bodyEl = document.getElementById('quiz-body');
+    const validateBtn = document.getElementById('quiz-validate');
+    const contBtn = document.getElementById('quiz-continue');
+
+    if (!modal || !titleEl || !bodyEl || !validateBtn || !contBtn) return;
+
+    titleEl.textContent = phase.title || 'Quiz';
+    let html = '';
+    if (phase.desc) html += `<p>${phase.desc}</p>`;
+    html += '<div class="quiz-options">';
+    if (Array.isArray(phase.options)) {
+      phase.options.forEach(opt => {
+        const safeLabel = opt.label || '';
+        const correct = !!opt.correct;
+        html += `<label class="quiz-item" data-id="${opt.id}" data-correct="${correct ? '1' : '0'}">
+          <input type="checkbox" data-id="${opt.id}"> ${safeLabel}
+        </label>`;
+      });
+    }
+    html += '</div>';
+    bodyEl.innerHTML = html;
+
+    modal.classList.add('active');
+    contBtn.style.display = 'none';
+    validateBtn.disabled = false;
+
+    validateBtn.onclick = () => {
+      const items = Array.from(bodyEl.querySelectorAll('.quiz-item'));
+      let score = 0;
+      items.forEach(item => {
+        const correct = item.getAttribute('data-correct') === '1';
+        const input = item.querySelector('input[type="checkbox"]');
+        const checked = input && input.checked;
+        item.classList.remove('correct', 'wrong');
+        // scoring based on player's selection
+        if (checked && correct) score += 1;
+        else if (checked && !correct) score -= 0.5;
+        // visual feedback: correct items green, incorrect red, regardless of selection
+        if (correct) item.classList.add('correct');
+        else item.classList.add('wrong');
+        if (input) input.disabled = true;
+      });
+      // apply a small effect based on score
+      if (score > 0) {
+        state.spiritual += score * 2;
+        state.barakah = Math.min(1.35, state.barakah + score * 0.02);
+      } else if (score < 0) {
+        state.spiritual += score; // negative
+        state.barakah = Math.max(0.85, state.barakah + score * 0.01);
+      }
+      validateBtn.disabled = true;
+      contBtn.style.display = 'inline-block';
+    };
+
+    contBtn.onclick = () => {
+      modal.classList.remove('active');
+      advancePhase();
+    };
+  }
+
   function financialScore() {
     const maxWealth = 1200000;
     return Math.min(100, Math.max(0, Math.round((state.wealth / maxWealth) * 100)));
@@ -712,6 +1201,7 @@
 
   function renderFinal() {
     showScreen('final-screen');
+    document.getElementById('final-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
     const fin = financialScore(), soc = socialScore(), spi = spiritualScore();
     document.getElementById('final-name').textContent = state.character.name;
     document.getElementById('final-financial').textContent = fin;
@@ -754,14 +1244,16 @@
     }
     ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#f5f0e6';
-    ctx.font = '12px sans-serif';
+    ctx.font = '11px sans-serif';
     ctx.textAlign = 'center';
+    const labelR = R - 8;
     for (let i = 0; i < 3; i++) {
       const angle = (i * 2 * Math.PI / 3) - Math.PI/2;
-      const x = cx + (R + 15) * Math.cos(angle), y = cy + (R + 15) * Math.sin(angle);
+      const x = cx + labelR * Math.cos(angle), y = cy + labelR * Math.sin(angle);
       ctx.fillText(labels[i], x, y);
     }
     emitSound('success');
+    renderInvestmentSummary('invest-summary-final');
   }
 
   function startGame() {
@@ -769,7 +1261,7 @@
     state.phaseIndex = 0;
     state.age = 22;
     state.wealth = 0;
-    state.monthlyIncome = 3000;
+    state.monthlyIncome = 2000;
     state.barakah = 1.0;
     state.social = 50;
     state.spiritual = 50;
@@ -780,6 +1272,13 @@
     state.married = false;
     state.divorced = false;
     state.sadaqahDone = false;
+    state.investmentStats = {
+      halal_low:   { contrib: 0, value: 0 },
+      halal_equity:{ contrib: 0, value: 0 },
+      gold:        { contrib: 0, value: 0 },
+      riba:        { contrib: 0, value: 0 }
+    };
+    state.currentInvestProfile = null;
     showScreen('game-screen');
     renderPhase();
     document.getElementById('game-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -799,7 +1298,7 @@
   document.getElementById('char-back-3').onclick = () => showCharStep(2);
   document.getElementById('char-next-3').onclick = () => {
     if (!state.occupation) { alert('Please choose your occupation.'); return; }
-    document.getElementById('char-summary').textContent = state.name + ', you are 22. $3,000/month. No assets. Your choices will shape your life.';
+    document.getElementById('char-summary').textContent = state.name + ', you are 22. $2,000/month. No assets. Your choices will shape your life.';
     showCharStep(4);
   };
 
@@ -837,7 +1336,7 @@
   }
 
   document.getElementById('char-next-2').onclick = () => {
-    if (!state.sex) { alert('Please choose your sex.'); return; }
+    if (!state.sex) { alert('Please choose your gender.'); return; }
     renderOccupationGrid();
     state.occupation = '';
     document.querySelectorAll('#occupation-grid .char-card').forEach(c => c.classList.remove('selected'));
@@ -861,7 +1360,20 @@
     document.getElementById('game-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
     emitSound('success');
   };
-  document.getElementById('replay-btn').onclick = () => { showScreen('char-screen'); showCharStep(1); };
+  document.getElementById('replay-btn').onclick = () => {
+    state.investmentStats = {
+      halal_low:   { contrib: 0, value: 0 },
+      halal_equity:{ contrib: 0, value: 0 },
+      gold:        { contrib: 0, value: 0 },
+      riba:        { contrib: 0, value: 0 }
+    };
+    state.currentInvestProfile = null;
+    renderInvestmentSummary('invest-summary-game');
+    renderInvestmentSummary('invest-summary-final');
+    showScreen('char-screen');
+    showCharStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   document.getElementById('share-btn').onclick = () => {
     const fin = financialScore(), soc = socialScore(), spi = spiritualScore();
     const text = `Mīzān: The Life Investor — ${state.character.name}: Financial ${fin}, Well-being ${soc}, Spiritual ${spi}.`;
